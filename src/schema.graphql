@@ -1,0 +1,26 @@
+type Course{
+    _id:ID
+    tittle: String
+    teacher: String
+    description: String
+    topic: String
+    Horas: Int
+}
+type Query{
+    "Devuelve todos los cursos"
+    getCourses:[Course]
+    "Devuelve un solo curso"
+    getCourse(id:ID!):Course
+}
+input CourseInput{
+    tittle:String!
+    teacher: String
+    description: String!
+    topic: String
+    Horas: Int!
+}
+
+type Mutation{
+    "Crear Curso"
+    createCourse(input: CourseInput!): Course
+}

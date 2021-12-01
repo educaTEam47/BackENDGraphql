@@ -1,16 +1,27 @@
 type Course{
     _id:ID
     tittle: String
-    teacher: String
+    teacher: [Teacher]
     description: String
     topic: String
     Horas: Int
+    people:[Student]
 }
-type Query{
-    "Devuelve todos los cursos"
-    getCourses:[Course]
-    "Devuelve un solo curso"
-    getCourse(id:ID!):Course
+type Student{
+    _id:ID
+    nombres:String
+    apellidos: String
+    identificacion:String
+    numIdentificacion:String
+    Carrera:String
+}
+type Teacher{
+    _id:ID
+    nombres: String
+    apellidos: String
+    Curso: [Course]
+    Profesion: String
+    Horas:Int
 }
 input CourseInput{
     tittle:String!
@@ -19,8 +30,69 @@ input CourseInput{
     topic: String
     Horas: Int!
 }
+input InputStudent{
+    nombres:String!
+    apellidos: String!
+}
+input InputTeacher{
+    nombres: String!
+    apellidos: String!
+    Profesion: String!
+}
+input UpdateCourse{
+    teacher: String
+    description: String
+    topic: String
+    Horas: Int
+}
+input UpdateStudent{
+    nombres:String
+    apellidos:String
+    identificacion:String
+    numIdentificacion:Int
+    Carrera:String
+}
+input UpdateTeacher{
+    nombres: String
+    apellidos: String
+    Profesion: String
+    Horas:Int
+    Curso:String
+}
+type Query{
+    "Devuelve todos los cursos"
+    getCourses:[Course]
+    "Devuelve un solo curso"
+    getCourse(id:ID!):Course
+    "Devuelve todos los estudiantes"
+    getStudents:[Student]
+    "Devuelve un Estudiante"
+    getStudent(nombres:String!):Student
+    "Devuelve todos los profesores"
+    getTeachers:[Teacher]
+    "Devuelve solo un profe"
+    getTeacher(id:ID!):Teacher
+}
 
 type Mutation{
     "Crear Curso"
     createCourse(input: CourseInput!): Course
+    "Crear Estudiante"
+    createStudent(input: InputStudent!): Student
+    "Actualizar Estudiante"
+    updateStudent(id:ID!, input:UpdateStudent): Student
+    "Eliminar Estudiante"
+    deleteStudent(id:ID!):String!
+    "Actualizar Curso"
+    updateCourse(tittle: String!, input:UpdateCourse): Course
+    "Borrar Curso"
+    deleteCourse(tittle: String!): String!
+    "Agregar Personas al Curso"
+    addPeople(tittle:String!,nombres:String!): Course
+    "Crear Profesor"
+    createTeacher(input: InputTeacher!): Teacher
+    "Eliminar Profesor"
+    deleteTeacher(id:ID!):String!
+    "Actualizar Profesor"
+    updateTeacher(id:ID!, input: UpdateTeacher):Teacher
 }

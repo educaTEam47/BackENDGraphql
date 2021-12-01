@@ -14,6 +14,30 @@ module.exports = {
         }
         return courses
     },
+    getTeacher:async(root,{id})=>{
+        let db
+        let teacher
+        try {
+            db= await connectDb()
+            teacher= await db.collection('teachers').findOne(
+                {_id:ObjectId(id)}
+            )
+        } catch (error) {
+            console.error(error);
+        }
+        return teacher
+    },
+    getTeachers: async()=>{
+        let db
+        let teachers
+        try {
+            db= await connectDb()
+            teachers = await db.collection('teachers').find().toArray()
+        } catch (error) {
+            console.error(error);
+        }
+        return teachers
+    },
     getCourse: async (root, { id }) => {
         let db
         let course
@@ -25,5 +49,27 @@ module.exports = {
             console.error(error)
         }
         return course
+    },
+    getStudents: async () => {
+        let db
+        let students
+        try {
+            db = await connectDb()
+            students = await db.collection('student').find().toArray()
+        } catch (error) {
+            console.error(error)
+        }
+        return students
+    },
+    getStudent: async (root,{nombres})=>{
+        let db
+        let student
+        try{
+            db = await connectDb()
+            student = await db.collection('student').findOne({nombres:nombres})
+        }catch(error){
+            console.error(error)
+        }
+        return student
     }
 }

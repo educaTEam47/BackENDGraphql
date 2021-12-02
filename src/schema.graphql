@@ -9,6 +9,8 @@ type Course{
 }
 type Student{
     _id:ID
+    user:String
+    password:String
     nombres:String
     apellidos: String
     identificacion:String
@@ -17,6 +19,8 @@ type Student{
 }
 type Teacher{
     _id:ID
+    user:String
+    password:String
     nombres: String
     apellidos: String
     Curso: [Course]
@@ -31,10 +35,14 @@ input CourseInput{
     Horas: Int!
 }
 input InputStudent{
+    user:String!
+    password:String!
     nombres:String!
     apellidos: String!
 }
 input InputTeacher{
+    user:String!
+    password:String!
     nombres: String!
     apellidos: String!
     Profesion: String!

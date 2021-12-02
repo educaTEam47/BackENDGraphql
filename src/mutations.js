@@ -3,6 +3,7 @@
 const connectDb = require('./db')
 const { ObjectId } = require('mongodb')
 const connectDB = require('./db')
+const bcrypt = require('bcrypt');
 
 module.exports = {
     createCourse: async (root, { input }) => {
@@ -28,6 +29,9 @@ module.exports = {
         let student
         try {
             db = await connectDb()
+            const saltos = await bcrypt.genSalt(10);
+            const password = await bcrypt.hash(newStudent.password, saltos);
+            newStudent.password= password
             student = await db.collection('student').insertOne(newStudent)
             newStudent._id = student.insertedId
         } catch (error) {
@@ -41,6 +45,9 @@ module.exports = {
         let teacher
         try {
             db = await connectDb()
+            const saltos = await bcrypt.genSalt(10);
+            const password = await bcrypt.hash(newTeacher.password, saltos);
+            newTeacher.password= password
             teacher = await db.collection('teachers').insertOne(newTeacher)
             newTeacher._id = teacher.insertedId
         } catch (error) {

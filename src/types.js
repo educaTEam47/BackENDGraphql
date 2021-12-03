@@ -56,9 +56,46 @@ module.exports = {
                 console.error(error);
             }
             return data
+        },
+        Horas:async()=>{
+            let db
+            let horas
+            let data
+            let teacher
+            let cursosdata
+            let idcursos
+            let horaCurso
+            try {
+                db = await connectDb()
+                teacher = await db.collection('teachers').find().toArray()
+                //console.log(teacher)
+                teacher.forEach(function(element){
+                    data = element.curso
+                })
+                idcursos = data ? data.map((cursos)=> ObjectId(cursos)):[]
+                //console.log(idcursos)
+                cursosdata = idcursos ?
+                    await db.collection('courses').find(
+                        {_id: {$in: idcursos}}
+                    ).toArray() :[]
+                horas=0
+                cursosdata.forEach(function(element){
+                    horaCurso= element.Horas
+                    horas = horas+horaCurso
+                })
+                //console.log(horas)
+            } catch (error) {
+                console.error(error);
+            }
+            return horas
         }
     },
     Student: {
+        _id: async({_id})=>
+            {
+            global.id=_id
+            return _id
+        },
         myCourses: async ({ myCourses }) => {
             let db
             let data
@@ -74,6 +111,39 @@ module.exports = {
                 console.error(error);
             }
             return data
+        },
+        Horas:async()=>{
+            let db
+            let horas
+            let data
+            let student
+            let cursosdata
+            let idcursos
+            let horaCurso
+            try {
+                db = await connectDb()
+                student = await db.collection('student').find({_id:ObjectId(global.id)}).toArray()
+                //console.log(student)
+                //console.log(global.id)
+                student.forEach(function(element){
+                    data = element.myCourses
+                })
+                idcursos = data ? data.map((cursos)=> ObjectId(cursos)):[]
+                //console.log(idcursos)
+                cursosdata = idcursos ?
+                    await db.collection('courses').find(
+                        {_id: {$in: idcursos}}
+                    ).toArray() :[]
+                horas=0
+                cursosdata.forEach(function(element){
+                    horaCurso= element.Horas
+                    horas = horas+horaCurso
+                })
+                //console.log(horas)
+            } catch (error) {
+                console.error(error);
+            }
+            return horas
         }
     }
 }

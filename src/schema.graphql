@@ -18,6 +18,7 @@ type Student{
     numIdentificacion:String
     Carrera:String
     myCourses:[Course]
+    Horas:Int
 }
 type Teacher{
     _id:ID

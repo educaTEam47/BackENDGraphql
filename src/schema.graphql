@@ -11,6 +11,7 @@ type Student{
     _id:ID
     user:String
     password:String
+    Email: String
     nombres:String
     apellidos: String
     identificacion:String
@@ -21,6 +22,7 @@ type Teacher{
     _id:ID
     user:String
     password:String
+    Email: String
     nombres: String
     apellidos: String
     Curso: [Course]
@@ -36,12 +38,14 @@ input CourseInput{
 }
 input InputStudent{
     user:String!
+    Email: String!
     password:String!
     nombres:String!
     apellidos: String!
 }
 input InputTeacher{
     user:String!
+    Email: String!
     password:String!
     nombres: String!
     apellidos: String!

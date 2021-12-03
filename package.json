@@ -16,6 +16,7 @@
     "express": "^4.17.1",
     "express-graphql": "^0.12.0",
     "graphql": "^16.0.1",
+    "graphql-constraint-directive": "^2.1.1",
     "graphql-tools": "^8.2.0",
     "mongo": "^0.1.0",
     "mongoose": "^6.0.13",

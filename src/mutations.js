@@ -7,11 +7,7 @@ const bcrypt = require('bcrypt');
 
 module.exports = {
     createCourse: async (root, { input }) => {
-        const defaults = {
-            teacher: '',
-            topic: ''
-        }
-        const newCourse = Object.assign(defaults, input)
+        const newCourse = Object.assign(input)
         let db
         let course
         try {
@@ -31,7 +27,7 @@ module.exports = {
             db = await connectDb()
             const saltos = await bcrypt.genSalt(10);
             const password = await bcrypt.hash(newStudent.password, saltos);
-            newStudent.password= password
+            newStudent.password = password
             student = await db.collection('student').insertOne(newStudent)
             newStudent._id = student.insertedId
         } catch (error) {
@@ -47,7 +43,7 @@ module.exports = {
             db = await connectDb()
             const saltos = await bcrypt.genSalt(10);
             const password = await bcrypt.hash(newTeacher.password, saltos);
-            newTeacher.password= password
+            newTeacher.password = password
             teacher = await db.collection('teachers').insertOne(newTeacher)
             newTeacher._id = teacher.insertedId
         } catch (error) {
@@ -127,57 +123,57 @@ module.exports = {
         }
         return message
     },
-    deleteStudent: async(root,{id})=>{
+    deleteStudent: async (root, { id }) => {
         let db
         let search
         let message
         let student
         try {
-            db= await connectDb()
-            search = await db.collection('student').findOne({_id:ObjectId(id)})
+            db = await connectDb()
+            search = await db.collection('student').findOne({ _id: ObjectId(id) })
             console.log(search)
-            if (search==null){
-                message="El estudiante no se encuentra registrado"
+            if (search == null) {
+                message = "El estudiante no se encuentra registrado"
             }
-            else{
-                student= await db.collection('student').findOneAndDelete({_id:ObjectId(id)})
-                message= "El estudiante ha sido eliminado"
+            else {
+                student = await db.collection('student').findOneAndDelete({ _id: ObjectId(id) })
+                message = "El estudiante ha sido eliminado"
             }
         } catch (error) {
             console.error(error)
         }
         return message
     },
-    deleteTeacher: async(root,{id})=>{
+    deleteTeacher: async (root, { id }) => {
         let db
         let search
         let message
         let teacher
         try {
-            db= await connectDb()
-            search = await db.collection('teachers').findOne({_id:ObjectId(id)})
+            db = await connectDb()
+            search = await db.collection('teachers').findOne({ _id: ObjectId(id) })
             console.log(search)
-            if (search==null){
-                message="El Profesor no se encuentra registrado"
+            if (search == null) {
+                message = "El Profesor no se encuentra registrado"
             }
-            else{
-                teacher= await db.collection('teachers').findOneAndDelete({_id:ObjectId(id)})
-                message= "El Profesor ha sido eliminado"
+            else {
+                teacher = await db.collection('teachers').findOneAndDelete({ _id: ObjectId(id) })
+                message = "El Profesor ha sido eliminado"
             }
         } catch (error) {
             console.error(error)
         }
         return message
     },
-    addPeople: async (root, { tittle, nombres }) => {
+    addPeople: async (root, { idCourse, idStudent }) => {
         let db
         let student
         let course
         let message
         try {
             db = await connectDb()
-            course = await db.collection('courses').findOne({ tittle: tittle })
-            student = await db.collection('student').findOne({ nombres: nombres })
+            course = await db.collection('courses').findOne({ _id: ObjectId(idCourse) })
+            student = await db.collection('student').findOne({ _id: ObjectId(idStudent) })
             if (course == null) {
                 console.log("El curso no existe")
                 return "El curso no existe"
@@ -188,8 +184,12 @@ module.exports = {
             }
             else {
                 await db.collection('courses').updateOne(
-                    { tittle: tittle },
-                    { $addToSet: { people: nombres } }
+                    { _id: ObjectId(idCourse) },
+                    { $addToSet: { people: idStudent } }
+                )
+                await db.collection('student').updateOne(
+                    { _id: ObjectId(idStudent) },
+                    { $addToSet: { myCourses: idCourse } }
                 )
                 console.log("Add")
                 return course
@@ -198,4 +198,38 @@ module.exports = {
             console.log(error)
         }
     },
+    addTeacher: async (root, { idTeacher, idCurso }) => {
+        let db
+        let course
+        let teacher
+        try {
+            db = await connectDb()
+            course = await db.collection('courses').findOne({ _id: ObjectId(idCurso) })
+            teacher = await db.collection('teachers').findOne({ _id: ObjectId(idTeacher) })
+            //console.log(course)
+            //console.log(teacher)
+            if (course == null) {
+                console.log("El curso no existe")
+                return "El curso no existe"
+            }
+            else if (teacher == null) {
+                console.log("El profesor no existe")
+                return "El profesor no existe"
+            }
+            else {
+                await db.collection('courses').updateOne(
+                    { _id: ObjectId(idCurso) },
+                    { $addToSet: { teacher: idTeacher } }
+                )
+                await db.collection('teachers').updateOne(
+                    { _id: ObjectId(idTeacher) },
+                    { $addToSet: { curso: idCurso } }
+                )
+                console.log("Add")
+                return teacher
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
 }

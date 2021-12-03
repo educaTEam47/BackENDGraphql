@@ -61,12 +61,12 @@ module.exports = {
         }
         return students
     },
-    getStudent: async (root,{nombres})=>{
+    getStudent: async (root,{idStudent})=>{
         let db
         let student
         try{
             db = await connectDb()
-            student = await db.collection('student').findOne({nombres:nombres})
+            student = await db.collection('student').findOne({_id:ObjectId(idStudent)})
         }catch(error){
             console.error(error)
         }

@@ -1,114 +1,112 @@
-type Course{
-    _id:ID
-    tittle: String
-    teacher:[Teacher]
-    description: String
-    topic: String
-    Horas: Int
-    people:[Student]
+enum Rol{
+    Administrador
+    Lider
+    Estudiante
 }
-type Student{
-    _id:ID
-    user:String
-    password:String
-    Email: String
+type Error{
+    path:String!
+    message:String!
+}
+"-----response-------"
+type resregister{
+    user:user
+    register:Boolean
+    error:[Error]
+}
+type resProject{
+    Project:Project
+    create:Boolean
+    error:[Error]
+}
+type reslogin{
+    login:Boolean
+    token:String
+    error:[Error]
+}
+type resUpdateUser{
+    user:user
+    update:Boolean
+    error:[Error]
+}
+type resuser{
+    user:user
+    search:Boolean
+    error:[Error]
+}
+"----------Type--------"
+type Project{
+    tittle:String
+    description:String
+    Horas:String
+    lider:[user]
+    people:[user]
+}
+type user{
+    _id:String
     nombres:String
-    apellidos: String
+    apellidos:String
+    email:String
+    rol:String
     identificacion:String
     numIdentificacion:String
     Carrera:String
-    myCourses:[Course]
-    Horas:Int
 }
-type Teacher{
-    _id:ID
-    user:String
+type Student{
+    nombres:String
+    apellidos:String
+    username:String
+    email:String
     password:String
-    Email: String
-    nombres: String
-    apellidos: String
-    curso: [Course]
-    Profesion: String
+    numidentificacion:Int
+    cursos:String
     Horas:Int
 }
-input CourseInput{
-    tittle:String!
-    teacher: String
-    description: String!
-    topic: String
-    Horas: Int!
-}
-input InputStudent{
-    user:String!
-    Email: String!
-    password:String!
-    nombres:String!
-    apellidos: String!
-}
-input InputTeacher{
-    user:String!
-    Email: String!
-    password:String!
-    nombres: String!
-    apellidos: String!
-    Profesion: String!
-}
-input UpdateCourse{
-    teacher: String
-    description: String
-    topic: String
-    Horas: Int
-}
-input UpdateStudent{
+"---------Updates-----------"
+input UpdateUser{
     nombres:String
     apellidos:String
     identificacion:String
-    numIdentificacion:Int
+    numIdentificacion:String
     Carrera:String
+    email:String
+    rol:String
 }
-input UpdateTeacher{
-    nombres: String
-    apellidos: String
-    Profesion: String
-    Horas:Int
-    Curso:String
+"----------//Inputs--------"
+input inputProject{
+    tittle:String!
+    description:String!
+    Horas:String!
+}
+input inputUser{
+    nombres:String!
+    apellidos:String!
+    username:String!
+    email:String!
+    password:String!
+    rol:String!
+}
+input login{
+    username:String!
+    password:String!
 }
 type Query{
-    "Devuelve todos los cursos"
-    getCourses:[Course]
-    "Devuelve un solo curso"
-    getCourse(id:ID!):Course
-    "Devuelve todos los estudiantes"
-    getStudents:[Student]
-    "Devuelve un Estudiante"
-    getStudent(idStudent:ID!):Student
-    "Devuelve todos los profesores"
-    getTeachers:[Teacher]
-    "Devuelve solo un profe"
-    getTeacher(id:ID!):Teacher
+    "Van los getters"
+    getUsers:[user]
+    "Obtener un Usuario"
+    getUser(id:ID!):resuser
+    "Obtener todos los proyectos"
+    getProjects:[Project]
+    "Obtener solo un proyecto"
+    getProject(id:ID!):Project
 }
 
 type Mutation{
-    "Crear Curso"
-    createCourse(input: CourseInput!): Course
-    "Crear Estudiante"
-    createStudent(input: InputStudent!): Student
-    "Actualizar Estudiante"
-    updateStudent(id:ID!, input:UpdateStudent): Student
-    "Eliminar Estudiante"
-    deleteStudent(id:ID!):String!
-    "Actualizar Curso"
-    updateCourse(tittle: String!, input:UpdateCourse): Course
-    "Borrar Curso"
-    deleteCourse(tittle: String!): String!
-    "Agregar Personas al Curso"
-    addPeople(idCourse:ID!,idStudent:ID!): Course
-    "Crear Profesor"
-    createTeacher(input: InputTeacher!): Teacher
-    "Eliminar Profesor"
-    deleteTeacher(id:ID!):String!
-    "Actualizar Profesor"
-    updateTeacher(id:ID!, input: UpdateTeacher):Teacher
-    "Agregar Profesor al Curso"
-    addTeacher(idTeacher:ID!,idCurso:ID!): Teacher
+    "Regsitro del Usuario"
+    registro(input:inputUser!):resregister
+    "Login"
+    login(input:login!):reslogin
+    "Crear Proyecto"
+    createProject(input: inputProject!):resProject
+    "Update User"
+    updateUser(id:ID!,input:UpdateUser!):resUpdateUser
 }

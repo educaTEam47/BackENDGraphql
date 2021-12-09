@@ -3,73 +3,66 @@ const connectDb = require('./db')
 const { ObjectId } = require('mongodb')
 
 module.exports = {
-    getCourses: async () => {
+    getUsers: async () => {
         let db
-        let courses
+        let Users
         try {
             db = await connectDb()
-            courses = await db.collection('courses').find().toArray()
+            Users = await db.collection('Users').find().toArray()
+            //console.log(Users)
         } catch (error) {
             console.error(error);
         }
-        return courses
+        return Users
     },
-    getTeacher:async(root,{id})=>{
+    getUser: async (root, { id }) => {
         let db
-        let teacher
+        let user
+        let error
+        let search
         try {
-            db= await connectDb()
-            teacher= await db.collection('teachers').findOne(
-                {_id:ObjectId(id)}
-            )
+            db = await connectDb()
+            user = await db.collection('Users').findOne({ _id: ObjectId(id) })
+            //console.log(id)
+            if(user==null){
+                error=[{path:"Validacion",message:"El usuario no existe"}]
+                search=false
+            }
+            else{
+                search=true
+            }
+            //console.log(user)
+            //console.log(error)
         } catch (error) {
             console.error(error);
         }
-        return teacher
+        return{
+            user,
+            search,
+            error
+        }
     },
-    getTeachers: async()=>{
+    getProjects: async () => {
         let db
-        let teachers
+        let project
         try {
-            db= await connectDb()
-            teachers = await db.collection('teachers').find().toArray()
+            db = await connectDb()
+            project = await db.collection('projects').find().toArray()
+            //console.log(project)
         } catch (error) {
             console.error(error);
         }
-        return teachers
+        return project
     },
-    getCourse: async (root, { id }) => {
+    getProject: async (root, { id }) => {
         let db
-        let course
+        let project
         try {
             db = await connectDb()
-            course = await db.collection('courses').findOne({ _id: ObjectId(id) })
-        }
-        catch (error) {
-            console.error(error)
-        }
-        return course
-    },
-    getStudents: async () => {
-        let db
-        let students
-        try {
-            db = await connectDb()
-            students = await db.collection('student').find().toArray()
+            project = await db.collection('projects').findOne({_id:ObjectId(id)})
         } catch (error) {
-            console.error(error)
+            console.error(error);
         }
-        return students
-    },
-    getStudent: async (root,{idStudent})=>{
-        let db
-        let student
-        try{
-            db = await connectDb()
-            student = await db.collection('student').findOne({_id:ObjectId(idStudent)})
-        }catch(error){
-            console.error(error)
-        }
-        return student
+        return project
     }
 }

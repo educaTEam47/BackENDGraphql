@@ -210,6 +210,45 @@ module.exports = {
             update,
             error
         }
-
+    },
+    addStudent: async (root, { idStudent, idProject }) => {
+        let db
+        let project
+        let student
+        let add
+        let error
+        try {
+            db = await connectDb()
+            //console.log(idStudent,idProject)
+            project = await db.collection('projects').findOne({ _id: ObjectId(idProject) })
+            student = await db.collection('Users').findOne({ _id: ObjectId(idStudent) })
+            //console.log(project, student)
+            if(!student){
+                error=[{path:"Validacion",message:"No existe el estudiante"}]
+                add=false
+            }
+            else if(!project){
+                error=[{path:"Validacion", message:"No existe el proyecto"}]
+                add=false
+            }
+            else{
+                await db.collection('Users').updateOne(
+                    {_id:ObjectId(idStudent)},
+                    {$addToSet: {cursos: idProject}}
+                )
+                await db.collection('projects').updateOne(
+                    {_id:ObjectId(idProject)},
+                    {$addToSet: {people:idStudent}}
+                )
+                add=true
+            }
+        } catch (error) {
+            console.error(error);
+        }
+        return{
+            project,
+            add,
+            error
+        }
     }
 }

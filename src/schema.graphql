@@ -33,6 +33,11 @@ type resuser{
     search:Boolean
     error:[Error]
 }
+type resAddStudent{
+    project:Project
+    add:Boolean
+    error:[Error]
+}
 "----------Type--------"
 type Project{
     tittle:String
@@ -50,6 +55,8 @@ type user{
     identificacion:String
     numIdentificacion:String
     Carrera:String
+    cursos:[Project]
+    Horas:Int
 }
 type Student{
     nombres:String
@@ -58,7 +65,7 @@ type Student{
     email:String
     password:String
     numidentificacion:Int
-    cursos:String
+    cursos:[Project]
     Horas:Int
 }
 "---------Updates-----------"
@@ -109,4 +116,6 @@ type Mutation{
     createProject(input: inputProject!):resProject
     "Update User"
     updateUser(id:ID!,input:UpdateUser!):resUpdateUser
+    "Agregar Estudiante"
+    addStudent(idStudent:ID!, idProject:ID!):resAddStudent
 }

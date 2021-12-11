@@ -18,6 +18,20 @@ module.exports = {
                 console.error(error);
             }
             return peopledata
+        },
+        lider: async ({lider})=>{
+            let db
+            let liderdata
+            let teachers
+            try {
+                db = await connectDb()
+                teachers = lider ? lider.map((teacher=>ObjectId(teacher))) : []
+                liderdata =teachers
+                    ? await db.collection('Users').find({_id: {$in:teachers}}).toArray():[]
+            } catch (error) {
+                console.error(error);
+            }
+            return liderdata
         }
     },
     user:{

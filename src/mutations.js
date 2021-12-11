@@ -223,32 +223,145 @@ module.exports = {
             project = await db.collection('projects').findOne({ _id: ObjectId(idProject) })
             student = await db.collection('Users').findOne({ _id: ObjectId(idStudent) })
             //console.log(project, student)
-            if(!student){
-                error=[{path:"Validacion",message:"No existe el estudiante"}]
-                add=false
+            if (!student) {
+                error = [{ path: "Validacion", message: "No existe el estudiante" }]
+                add = false
             }
-            else if(!project){
-                error=[{path:"Validacion", message:"No existe el proyecto"}]
-                add=false
+            else if (!project) {
+                error = [{ path: "Validacion", message: "No existe el proyecto" }]
+                add = false
             }
-            else{
-                await db.collection('Users').updateOne(
-                    {_id:ObjectId(idStudent)},
-                    {$addToSet: {cursos: idProject}}
-                )
-                await db.collection('projects').updateOne(
-                    {_id:ObjectId(idProject)},
-                    {$addToSet: {people:idStudent}}
-                )
-                add=true
+            else {
+                if (student.rol == "Estudiante") {
+                    await db.collection('Users').updateOne(
+                        { _id: ObjectId(idStudent) },
+                        { $addToSet: { cursos: idProject } }
+                    )
+                    await db.collection('projects').updateOne(
+                        { _id: ObjectId(idProject) },
+                        { $addToSet: { people: idStudent } }
+                    )
+                    add = true
+                }
+                else {
+                    error = [{ path: "Validacion", message: "El id no corresponde a un Estudiante" }]
+                }
             }
         } catch (error) {
             console.error(error);
         }
-        return{
+        return {
             project,
             add,
             error
         }
+    },
+    addTeacher: async (root, { idTeacher, idProject }) => {
+        let db
+        let project
+        let teacher
+        let add
+        let error
+        try {
+            db = await connectDb()
+            if (idTeacher.length != 24 || idProject.length != 24) {
+                error = [{ path: "Validacion", message: "El ID introducido, no es un ID valido" }]
+            }
+            else {
+                project = await db.collection('projects').findOne({ _id: ObjectId(idProject) })
+                teacher = await db.collection('Users').findOne({ _id: ObjectId(idTeacher) })
+                //console.log(project, teacher)
+                if (!project) {
+                    error = [{ path: "validacion", message: "El proyecto no existe" }]
+                    add = false
+                }
+                else if (!teacher) {
+                    error = [{ path: "Validacion", message: "El profesor no existe" }]
+                    add = false
+                }
+                else {
+                    if (teacher.rol == "Lider") {
+                        await db.collection('Users').updateOne(
+                            { _id: ObjectId(idTeacher) },
+                            { $addToSet: { cursos: idProject } }
+                        )
+                        await db.collection('projects').updateOne(
+                            { _id: ObjectId(idProject) },
+                            { $addToSet: { lider: idTeacher } }
+                        )
+                        add = true
+                    }
+                    else {
+                        error = [{ path: "Validacion", message: "El id presentado no corresponde a un profesor" }]
+                        add = false
+                    }
+                }
+
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
+        return {
+            project,
+            add,
+            error
+        }
+    },
+    updateProject: async (root, { id, input }) => {
+        let db
+        let Project
+        let teacher
+        let update
+        let error
+        try {
+            db = await connectDb()
+            if (input.tittle == "") {
+                error = [{ path: "Validacion", message: "El Titulo del proyecto no puede ir vacio" }]
+                update = false
+            }
+            else if (input.description == "") {
+                error = [{ path: "Validacion", message: "La descripcion del proyecto no puede ir vacio" }]
+                update = false
+            }
+            else if (input.Horas == "") {
+                error = [{ path: "Validacion", message: "La Hora del proyecto no puede ir vacio" }]
+                update = false
+            }
+            else {
+                Project = await db.collection('projects').updateOne(
+                    { _id: ObjectId(id) },
+                    { $set: input }
+                )
+                Project = await db.collection('projects').findOne({ _id: ObjectId(id) })
+                update = true
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
+        return {
+            Project,
+            update,
+            error
+        }
+    },
+    delTeacher: async (root, { idCourse, idTeacher }) => {
+        let db
+        let course
+        try {
+            db = await connectDb()
+            await db.collection('projects').updateOne(
+                { _id: ObjectId(idCourse) },
+                { $pull: { lider: idTeacher } }
+            )
+            await db.collection('Users').updateOne(
+                {_id:ObjectId(idTeacher)},
+                {$pull:{cursos:idCourse}}
+            )
+        } catch (error) {
+            console.error(error);
+        }
+        return "El profesor ha sido eliminado"
     }
 }

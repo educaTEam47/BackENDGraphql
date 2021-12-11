@@ -38,8 +38,14 @@ type resAddStudent{
     add:Boolean
     error:[Error]
 }
+type resUpdateProject{
+    Project:Project
+    update:Boolean
+    error:[Error]
+}
 "----------Type--------"
 type Project{
+    _id:ID
     tittle:String
     description:String
     Horas:String
@@ -78,6 +84,11 @@ input UpdateUser{
     email:String
     rol:String
 }
+input UpdateProject{
+    tittle:String
+    description:String
+    Horas:String
+}
 "----------//Inputs--------"
 input inputProject{
     tittle:String!
@@ -114,8 +125,14 @@ type Mutation{
     login(input:login!):reslogin
     "Crear Proyecto"
     createProject(input: inputProject!):resProject
+    "Actualizar Proyecto"
+    updateProject(id:ID!,input: UpdateProject!):resUpdateProject
+    "Eliminar Profesor"
+    delTeacher(idCourse:ID!,idTeacher:ID!):String
     "Update User"
     updateUser(id:ID!,input:UpdateUser!):resUpdateUser
     "Agregar Estudiante"
     addStudent(idStudent:ID!, idProject:ID!):resAddStudent
+    "Agregar Teacher"
+    addTeacher(idTeacher:ID!, idProject:ID!):resAddStudent
 }

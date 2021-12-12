@@ -129,6 +129,8 @@ type Mutation{
     updateProject(id:ID!,input: UpdateProject!):resUpdateProject
     "Eliminar Profesor"
     delTeacher(idCourse:ID!,idTeacher:ID!):String
+    "Eliminar Estudiante"
+    delStudent(idProject:ID!,idStudent:ID!):String
     "Update User"
     updateUser(id:ID!,input:UpdateUser!):resUpdateUser
     "Agregar Estudiante"

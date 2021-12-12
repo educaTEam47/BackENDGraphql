@@ -363,5 +363,23 @@ module.exports = {
             console.error(error);
         }
         return "El profesor ha sido eliminado"
+    },
+    delStudent: async (root, { idProject, idStudent }) => {
+        let db
+        let course
+        try {
+            db = await connectDb()
+            await db.collection('projects').updateOne(
+                { _id: ObjectId(idProject) },
+                { $pull: { people: idStudent } }
+            )
+            await db.collection('Users').updateOne(
+                {_id:ObjectId(idStudent)},
+                {$pull:{cursos:idProject}}
+            )
+        } catch (error) {
+            console.error(error);
+        }
+        return "El estudiante ha sido eliminado"
     }
 }

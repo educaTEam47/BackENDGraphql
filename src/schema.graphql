@@ -43,6 +43,13 @@ type resUpdateProject{
     update:Boolean
     error:[Error]
 }
+type resToken{
+    id:ID
+    nombres:String
+    rol:String
+    validacion:Boolean
+    error:[Error]
+}
 "----------Type--------"
 type Project{
     _id:ID
@@ -123,6 +130,8 @@ type Mutation{
     registro(input:inputUser!):resregister
     "Login"
     login(input:login!):reslogin
+    "Validar"
+    validate(token:String!):resToken
     "Crear Proyecto"
     createProject(input: inputProject!):resProject
     "Actualizar Proyecto"

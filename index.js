@@ -28,13 +28,6 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.use(
-    (req,res,next)=>{
-        //console.log(req.headers.authorization)
-        next()
-    }
-)
-
 // Conexion a Esquemas de GRAPHQL
 const typeDefs = readFileSync(
        join(__dirname,'src','schema.graphql'),

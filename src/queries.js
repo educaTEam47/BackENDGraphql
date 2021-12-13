@@ -22,21 +22,26 @@ module.exports = {
         let search
         try {
             db = await connectDb()
-            user = await db.collection('Users').findOne({ _id: ObjectId(id) })
-            //console.log(id)
-            if(user==null){
-                error=[{path:"Validacion",message:"El usuario no existe"}]
-                search=false
+            if (id.length !== 24) {
+                error = [{ path: "validacion", message: "El ID no es valido" }]
             }
-            else{
-                search=true
+            else {
+                user = await db.collection('Users').findOne({ _id: ObjectId(id) })
+                //console.log(id)
+                if (user == null) {
+                    error = [{ path: "Validacion", message: "El usuario no existe" }]
+                    search = false
+                }
+                else {
+                    search = true
+                }
             }
             //console.log(user)
             //console.log(error)
         } catch (error) {
             console.error(error);
         }
-        return{
+        return {
             user,
             search,
             error
@@ -59,7 +64,7 @@ module.exports = {
         let project
         try {
             db = await connectDb()
-            project = await db.collection('projects').findOne({_id:ObjectId(id)})
+            project = await db.collection('projects').findOne({ _id: ObjectId(id) })
         } catch (error) {
             console.error(error);
         }

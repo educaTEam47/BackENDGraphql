@@ -165,42 +165,49 @@ module.exports = {
         let index2
         try {
             db = await connectDb()
-            console.log(id, input)
-            search = await db.collection('Users').findOne({ _id: ObjectId(id) })
-            if (input.email) {
-                index1 = input.email.indexOf("@")
-                newemail = input.email.substring(0, index1)
-                newemail = newemail.toUpperCase()
+            //console.log(id, input)
+            if (id.length !== 24) {
+                error = [{ path: "Validacion", message: "Debe introducir un ID valido" }]
             }
             else {
-                newemail = search.email
-            }
-            index2 = search.email.indexOf("@")
-            searchEmail = search.email.substring(0, index2)
-            searchEmail = searchEmail.toUpperCase()
-            if (searchEmail != newemail) {
-                if (typeof input.numidetificacion == 'number' || input.numidetificacion == null) {
+                search = await db.collection('Users').findOne({ _id: ObjectId(id) })
+                if (input.email) {
+                    index1 = input.email.indexOf("@")
+                    newemail = input.email.substring(0, index1)
+                    newemail = newemail.toUpperCase()
+                }
+                else {
+                    newemail = search.email
+                }
+                index2 = search.email.indexOf("@")
+                searchEmail = search.email.substring(0, index2)
+                searchEmail = searchEmail.toUpperCase()
+                if (searchEmail != newemail) {
+                    if (typeof input.numidetificacion == 'number' || input.numidetificacion == null) {
+                        update = true
+                        await db.collection('Users').updateOne(
+                            { _id: ObjectId(id) },
+                            { $set: input }
+                        )
+                    }
+                    else {
+                        error = [{ path: "Validacion", message: "El numero de identificaion debe ser un numero" }]
+                    }
+                }
+                else {
+                    error = [{ path: "Validacion", message: "El correo ya se encuentra registrado, por ende no se ha actualizado" }]
                     update = true
+                    input.email = search.email
                     await db.collection('Users').updateOne(
                         { _id: ObjectId(id) },
                         { $set: input }
                     )
                 }
-                else {
-                    error = [{ path: "Validacion", message: "El numero de identificaion debe ser un numero" }]
-                }
+                user = await db.collection('Users').findOne({ _id: ObjectId(id) })
+                //console.log(user)
+
             }
-            else {
-                error = [{ path: "Validacion", message: "El correo ya se encuentra registrado, por ende no se ha actualizado" }]
-                update = true
-                input.email = search.email
-                await db.collection('Users').updateOne(
-                    { _id: ObjectId(id) },
-                    { $set: input }
-                )
-            }
-            user = await db.collection('Users').findOne({ _id: ObjectId(id) })
-            console.log(user)
+
 
         } catch (error) {
             console.error(error);
@@ -356,8 +363,8 @@ module.exports = {
                 { $pull: { lider: idTeacher } }
             )
             await db.collection('Users').updateOne(
-                {_id:ObjectId(idTeacher)},
-                {$pull:{cursos:idCourse}}
+                { _id: ObjectId(idTeacher) },
+                { $pull: { cursos: idCourse } }
             )
         } catch (error) {
             console.error(error);
@@ -374,12 +381,45 @@ module.exports = {
                 { $pull: { people: idStudent } }
             )
             await db.collection('Users').updateOne(
-                {_id:ObjectId(idStudent)},
-                {$pull:{cursos:idProject}}
+                { _id: ObjectId(idStudent) },
+                { $pull: { cursos: idProject } }
             )
         } catch (error) {
             console.error(error);
         }
         return "El estudiante ha sido eliminado"
+    },
+    validate: async(root,{token})=>{
+        let id
+        let nombres
+        let rol
+        let validacion
+        let error
+        //console.log(token)
+        if(!token || token==""){
+            error=[{path:"Validacion",message:"No tiene permiso"}]
+            let validacion= false
+        }
+        else{
+            try {
+                const verificar = jwt.verify(token,process.env.TOKEN_SECRET)
+                //console.log(verificar)
+                id = verificar.id
+                nombres = verificar.nombre
+                rol = verificar.rol
+                validacion= true
+            } catch (error) {
+                //error=[{path:"validacion", message:"El token no es valido"}]
+                //let validacion= false
+                console.error(error);
+            }
+        }
+        return{
+            id,
+            nombres,
+            rol,
+            validacion,
+            error
+        }
     }
 }

@@ -119,6 +119,7 @@ type Query{
     getUsers:[user]
     "Obtener un Usuario"
     getUser(id:ID!):resuser
+    getUserByEmail(Email:String!):resuser
     "Obtener todos los proyectos"
     getProjects:[Project]
     "Obtener solo un proyecto"

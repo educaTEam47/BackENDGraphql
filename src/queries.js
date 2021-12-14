@@ -46,6 +46,36 @@ module.exports = {
             search,
             error
         }
+    },getUserByEmail: async (_, { Email }) => {
+        let db
+        let user
+        let error
+        let search
+        try {
+            db = await connectDb()
+        
+            
+                user = await db.collection('Users').findOne({ email:Email })
+                console.log("Prueba 1: "+Email);
+                console.log("Resultado 1: "+user.email);
+                if (user == null) {
+                    error = [{ path: "Validacion", message: "El usuario no existe" }]
+                    search = false
+                }
+                else {
+                    search = true
+                }
+            
+            //console.log(user)
+            //console.log(error)
+        } catch (error) {
+            console.error(error);
+        }
+        return {
+            user,
+            search,
+            error
+        }
     },
     getProjects: async () => {
         let db

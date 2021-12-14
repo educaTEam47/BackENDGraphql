@@ -397,6 +397,7 @@ module.exports = {
         let error
         //console.log(token)
         if(!token || token==""){
+            console.log("No hay Token")
             error=[{path:"Validacion",message:"No tiene permiso"}]
             let validacion= false
         }

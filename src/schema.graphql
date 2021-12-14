@@ -45,6 +45,7 @@ type resUpdateProject{
 }
 type resToken{
     id:ID
+    email:String
     nombres:String
     rol:String
     validacion:Boolean
@@ -118,7 +119,7 @@ type Query{
     "Van los getters"
     getUsers:[user]
     "Obtener un Usuario"
-    getUser(id:ID!):resuser
+    getUser(email:String!):resuser
     "Obtener todos los proyectos"
     getProjects:[Project]
     "Obtener solo un proyecto"
@@ -137,13 +138,13 @@ type Mutation{
     "Actualizar Proyecto"
     updateProject(id:ID!,input: UpdateProject!):resUpdateProject
     "Eliminar Profesor"
-    delTeacher(idCourse:ID!,idTeacher:ID!):String
+    delTeacher(idCourse:ID!,email:String!):String
     "Eliminar Estudiante"
-    delStudent(idProject:ID!,idStudent:ID!):String
+    delStudent(idProject:ID!,email:String!):String
     "Update User"
     updateUser(id:ID!,input:UpdateUser!):resUpdateUser
     "Agregar Estudiante"
-    addStudent(idStudent:ID!, idProject:ID!):resAddStudent
+    addStudent(email:String!, idProject:ID!):resAddStudent
     "Agregar Teacher"
-    addTeacher(idTeacher:ID!, idProject:ID!):resAddStudent
+    addTeacher(email:String!, idProject:ID!):resAddStudent
 }

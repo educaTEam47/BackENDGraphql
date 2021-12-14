@@ -76,6 +76,7 @@ module.exports = {
         try {
             db = await connectDb()
             searchusername = await db.collection('Users').findOne({ username: user.username })
+            //console.log(searchusername)
             if (!searchusername) {
                 error = [{ path: "username", message: "No se encuentra el username en la base de datos" }]
             }
@@ -94,7 +95,8 @@ module.exports = {
                 token = jwt.sign({
                     id: searchusername._id,
                     nombre: nombres,
-                    rol: searchusername.rol
+                    rol: searchusername.rol,
+                    email:searchusername.email
                 },
                     process.env.TOKEN_SECRET,
                     { expiresIn: '15m' }
@@ -218,7 +220,7 @@ module.exports = {
             error
         }
     },
-    addStudent: async (root, { idStudent, idProject }) => {
+    addStudent: async (root, { email, idProject }) => {
         let db
         let project
         let student
@@ -228,7 +230,8 @@ module.exports = {
             db = await connectDb()
             //console.log(idStudent,idProject)
             project = await db.collection('projects').findOne({ _id: ObjectId(idProject) })
-            student = await db.collection('Users').findOne({ _id: ObjectId(idStudent) })
+            let filtro = project.people.filter(p => p === email)
+            student = await db.collection('Users').findOne({ email })
             //console.log(project, student)
             if (!student) {
                 error = [{ path: "Validacion", message: "No existe el estudiante" }]
@@ -240,18 +243,25 @@ module.exports = {
             }
             else {
                 if (student.rol == "Estudiante") {
-                    await db.collection('Users').updateOne(
-                        { _id: ObjectId(idStudent) },
-                        { $addToSet: { cursos: idProject } }
-                    )
-                    await db.collection('projects').updateOne(
-                        { _id: ObjectId(idProject) },
-                        { $addToSet: { people: idStudent } }
-                    )
-                    add = true
+                    if (filtro[0] === email) {
+                        error = [{ path: "Validacion", message: "El correo ya se encuentra registrado" }]
+                        add = false
+                    }
+                    else {
+                        await db.collection('Users').updateOne(
+                            { email },
+                            { $addToSet: { cursos: idProject } }
+                        )
+                        await db.collection('projects').updateOne(
+                            { _id: ObjectId(idProject) },
+                            { $addToSet: { people: email } }
+                        )
+                        add = true
+                    }
+
                 }
                 else {
-                    error = [{ path: "Validacion", message: "El id no corresponde a un Estudiante" }]
+                    error = [{ path: "Validacion", message: "El email no corresponde a un Estudiante" }]
                 }
             }
         } catch (error) {
@@ -263,7 +273,7 @@ module.exports = {
             error
         }
     },
-    addTeacher: async (root, { idTeacher, idProject }) => {
+    addTeacher: async (root, { email, idProject }) => {
         let db
         let project
         let teacher
@@ -271,12 +281,15 @@ module.exports = {
         let error
         try {
             db = await connectDb()
-            if (idTeacher.length != 24 || idProject.length != 24) {
-                error = [{ path: "Validacion", message: "El ID introducido, no es un ID valido" }]
+            if (email === "" || email === null) {
+                error = [{ path: "Validacion", message: "Debe introducir un email" }]
             }
             else {
                 project = await db.collection('projects').findOne({ _id: ObjectId(idProject) })
-                teacher = await db.collection('Users').findOne({ _id: ObjectId(idTeacher) })
+                //console.log(project)
+                let filtro = project.lider.filter(p => p === email)
+                //console.log(filtro)
+                teacher = await db.collection('Users').findOne({ email: email })
                 //console.log(project, teacher)
                 if (!project) {
                     error = [{ path: "validacion", message: "El proyecto no existe" }]
@@ -288,18 +301,24 @@ module.exports = {
                 }
                 else {
                     if (teacher.rol == "Lider") {
-                        await db.collection('Users').updateOne(
-                            { _id: ObjectId(idTeacher) },
-                            { $addToSet: { cursos: idProject } }
-                        )
-                        await db.collection('projects').updateOne(
-                            { _id: ObjectId(idProject) },
-                            { $addToSet: { lider: idTeacher } }
-                        )
-                        add = true
+                        if (filtro[0] === email) {
+                            error = [{ path: "validacion", message: "El email ya se encuentra registrado" }]
+                            add = false
+                        }
+                        else {
+                            await db.collection('Users').updateOne(
+                                { email },
+                                { $addToSet: { cursos: idProject } }
+                            )
+                            await db.collection('projects').updateOne(
+                                { _id: ObjectId(idProject) },
+                                { $addToSet: { lider: email } }
+                            )
+                            add = true
+                        }
                     }
                     else {
-                        error = [{ path: "Validacion", message: "El id presentado no corresponde a un profesor" }]
+                        error = [{ path: "Validacion", message: "El email presentado no corresponde a un profesor" }]
                         add = false
                     }
                 }
@@ -353,17 +372,17 @@ module.exports = {
             error
         }
     },
-    delTeacher: async (root, { idCourse, idTeacher }) => {
+    delTeacher: async (root, { idCourse, email }) => {
         let db
         let course
         try {
             db = await connectDb()
             await db.collection('projects').updateOne(
                 { _id: ObjectId(idCourse) },
-                { $pull: { lider: idTeacher } }
+                { $pull: { lider: email } }
             )
             await db.collection('Users').updateOne(
-                { _id: ObjectId(idTeacher) },
+                { email: email },
                 { $pull: { cursos: idCourse } }
             )
         } catch (error) {
@@ -371,17 +390,17 @@ module.exports = {
         }
         return "El profesor ha sido eliminado"
     },
-    delStudent: async (root, { idProject, idStudent }) => {
+    delStudent: async (root, { idProject, email }) => {
         let db
         let course
         try {
             db = await connectDb()
             await db.collection('projects').updateOne(
                 { _id: ObjectId(idProject) },
-                { $pull: { people: idStudent } }
+                { $pull: { people: email } }
             )
             await db.collection('Users').updateOne(
-                { _id: ObjectId(idStudent) },
+                { email },
                 { $pull: { cursos: idProject } }
             )
         } catch (error) {
@@ -389,34 +408,37 @@ module.exports = {
         }
         return "El estudiante ha sido eliminado"
     },
-    validate: async(root,{token})=>{
+    validate: async (root, { token }) => {
         let id
         let nombres
         let rol
         let validacion
+        let email
         let error
         //console.log(token)
-        if(!token || token==""){
+        if (!token || token == "") {
             console.log("No hay Token")
-            error=[{path:"Validacion",message:"No tiene permiso"}]
-            let validacion= false
+            error = [{ path: "Validacion", message: "No tiene permiso" }]
+            let validacion = false
         }
-        else{
+        else {
             try {
-                const verificar = jwt.verify(token,process.env.TOKEN_SECRET)
+                const verificar = jwt.verify(token, process.env.TOKEN_SECRET)
                 //console.log(verificar)
                 id = verificar.id
                 nombres = verificar.nombre
                 rol = verificar.rol
-                validacion= true
+                email=verificar.email
+                validacion = true
             } catch (error) {
                 //error=[{path:"validacion", message:"El token no es valido"}]
                 //let validacion= false
                 console.error(error);
             }
         }
-        return{
+        return {
             id,
+            email,
             nombres,
             rol,
             validacion,

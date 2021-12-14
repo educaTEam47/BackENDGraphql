@@ -11,9 +11,9 @@ module.exports = {
             let names
             try {
                 db = await connectDb()
-                names = people ? people.map((nombres=>ObjectId(nombres))) :[]
+                names = people ? people.map((nombres=>nombres)) :[]
                 peopledata= names
-                    ? await db.collection('Users').find({_id:{$in:names}}).toArray() :[]
+                    ? await db.collection('Users').find({email:{$in:names}}).toArray() :[]
             } catch (error) {
                 console.error(error);
             }
@@ -25,9 +25,9 @@ module.exports = {
             let teachers
             try {
                 db = await connectDb()
-                teachers = lider ? lider.map((teacher=>ObjectId(teacher))) : []
+                teachers = lider ? lider.map((teacher=>teacher)) : []
                 liderdata =teachers
-                    ? await db.collection('Users').find({_id: {$in:teachers}}).toArray():[]
+                    ? await db.collection('Users').find({email: {$in:teachers}}).toArray():[]
             } catch (error) {
                 console.error(error);
             }

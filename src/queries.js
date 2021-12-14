@@ -15,18 +15,18 @@ module.exports = {
         }
         return Users
     },
-    getUser: async (root, { id }) => {
+    getUser: async (root, { email }) => {
         let db
         let user
         let error
         let search
         try {
             db = await connectDb()
-            if (id.length !== 24) {
+            if (email==="" || email===null) {
                 error = [{ path: "validacion", message: "El ID no es valido" }]
             }
             else {
-                user = await db.collection('Users').findOne({ _id: ObjectId(id) })
+                user = await db.collection('Users').findOne({ email: email })
                 //console.log(id)
                 if (user == null) {
                     error = [{ path: "Validacion", message: "El usuario no existe" }]

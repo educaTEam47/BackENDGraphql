@@ -119,10 +119,8 @@ type Query{
     "Van los getters"
     getUsers:[user]
     "Obtener un Usuario"
-<<<<<<< HEAD
     getUser(email:String!):resuser
     getUserByEmail(Email:String!):resuser
->>>>>>> ad3e319af19df7ed8032053094c34ebaa455ac96
     "Obtener todos los proyectos"
     getProjects:[Project]
     "Obtener solo un proyecto"

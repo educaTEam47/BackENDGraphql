@@ -76,6 +76,7 @@ type notes{
     teacher:user
     student:[user]
     note:String
+    description:String
     response:[response]
     calificacion:String
 }
@@ -156,6 +157,7 @@ input inputNotes{
     teacher:String
     student:String
     note:String
+    description:String
     calificacion:String
 }
 input inputResponse{

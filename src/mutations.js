@@ -469,7 +469,7 @@ module.exports = {
         let add
         let calificacion
         let notes
-        let noteadd
+        let notesadd
         notes=Object.assign(input)
         try {
             db = await connectDb()

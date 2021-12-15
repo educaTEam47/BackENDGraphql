@@ -46,6 +46,7 @@ module.exports = {
                 searchusername = await db.collection('Users').findOne({ username: user.username })
                 searchEmail = await db.collection('Users').findOne({ email: user.email })
                 if (searchusername == null && searchEmail == null) {
+                    user.Estado = "Desactivar"
                     usuario = await db.collection('Users').insertOne(user)
                     register = true
                 }
@@ -96,7 +97,8 @@ module.exports = {
                     id: searchusername._id,
                     nombre: nombres,
                     rol: searchusername.rol,
-                    email:searchusername.email
+                    email: searchusername.email,
+                    Estado: searchusername.Estado
                 },
                     process.env.TOKEN_SECRET,
                     { expiresIn: '15m' }
@@ -116,13 +118,16 @@ module.exports = {
             error
         }
     },
-    createProject: async (root, { input }) => {
+    createProject: async (root, {email, input }) => {
         let db
         let addproject
         let search
         let create
         let error
+        let course
         const Project = Object.assign(input)
+        //console.log(Project)
+        //console.log(email)
         try {
             db = await connectDb()
             if (input.tittle == null || input.tittle == "") {
@@ -138,8 +143,21 @@ module.exports = {
                 search = await db.collection('projects').findOne({ tittle: Project.tittle })
                 if (search == null) {
                     addproject = await db.collection('projects').insertOne(Project)
+                    //console.log(addproject)
                     Project._id = addproject.insertedId
+                    //console.log(Project)
                     create = true
+                    await db.collection('projects').updateOne(
+                        { _id: Project._id },
+                        { $addToSet: { lider: email } }
+                    )
+                    let idadd = Project._id.valueOf()
+                    console.log(idadd)
+                    course = await db.collection('projects').findOne({_id:Project._id})
+                    await db.collection('Users').updateOne(
+                        { email },
+                        { $addToSet: { cursos: idadd } }
+                    )
                 }
                 else {
                     error = [{ path: "Validacion", message: "El titulo del proyecto ya existe" }]
@@ -155,7 +173,7 @@ module.exports = {
             error
         }
     },
-    updateUser: async (root, { id, input }) => {
+    updateUser: async (root, { email, input }) => {
         let db
         let user
         let error
@@ -168,47 +186,30 @@ module.exports = {
         try {
             db = await connectDb()
             //console.log(id, input)
-            if (id.length !== 24) {
-                error = [{ path: "Validacion", message: "Debe introducir un ID valido" }]
+            search = await db.collection('Users').findOne({ email })
+            if (input.email) {
+                index1 = input.email.indexOf("@")
+                newemail = input.email.substring(0, index1)
+                newemail = newemail.toUpperCase()
             }
             else {
-                search = await db.collection('Users').findOne({ _id: ObjectId(id) })
-                if (input.email) {
-                    index1 = input.email.indexOf("@")
-                    newemail = input.email.substring(0, index1)
-                    newemail = newemail.toUpperCase()
-                }
-                else {
-                    newemail = search.email
-                }
-                index2 = search.email.indexOf("@")
-                searchEmail = search.email.substring(0, index2)
-                searchEmail = searchEmail.toUpperCase()
-                if (searchEmail != newemail) {
-                    if (typeof input.numidetificacion == 'number' || input.numidetificacion == null) {
-                        update = true
-                        await db.collection('Users').updateOne(
-                            { _id: ObjectId(id) },
-                            { $set: input }
-                        )
-                    }
-                    else {
-                        error = [{ path: "Validacion", message: "El numero de identificaion debe ser un numero" }]
-                    }
-                }
-                else {
-                    error = [{ path: "Validacion", message: "El correo ya se encuentra registrado, por ende no se ha actualizado" }]
-                    update = true
-                    input.email = search.email
-                    await db.collection('Users').updateOne(
-                        { _id: ObjectId(id) },
-                        { $set: input }
-                    )
-                }
-                user = await db.collection('Users').findOne({ _id: ObjectId(id) })
-                //console.log(user)
-
+                newemail = search.email
             }
+            index2 = search.email.indexOf("@")
+            searchEmail = search.email.substring(0, index2)
+            searchEmail = searchEmail.toUpperCase()
+            if (typeof input.numidetificacion == 'number' || input.numidetificacion == null) {
+                update = true
+                await db.collection('Users').updateOne(
+                    { email },
+                    { $set: input }
+                )
+            }
+            else {
+                error = [{ path: "Validacion", message: "El numero de identificaion debe ser un numero" }]
+            }
+            user = await db.collection('Users').findOne({ email })
+            //console.log(user)
 
 
         } catch (error) {
@@ -248,15 +249,20 @@ module.exports = {
                         add = false
                     }
                     else {
-                        await db.collection('Users').updateOne(
-                            { email },
-                            { $addToSet: { cursos: idProject } }
-                        )
-                        await db.collection('projects').updateOne(
-                            { _id: ObjectId(idProject) },
-                            { $addToSet: { people: email } }
-                        )
-                        add = true
+                        if(student.Estado==="Activar"){
+                            await db.collection('Users').updateOne(
+                                { email },
+                                { $addToSet: { cursos: idProject } }
+                            )
+                            await db.collection('projects').updateOne(
+                                { _id: ObjectId(idProject) },
+                                { $addToSet: { people: email } }
+                            )
+                            add = true
+                        }
+                        else{
+                            error=[{path:"Validate",message:"No puede agregar un estudiante que no ha sido activado"}]
+                        }
                     }
 
                 }
@@ -279,15 +285,17 @@ module.exports = {
         let teacher
         let add
         let error
+        let filtro
         try {
+            console.log(idProject,email)
             db = await connectDb()
             if (email === "" || email === null) {
                 error = [{ path: "Validacion", message: "Debe introducir un email" }]
             }
             else {
                 project = await db.collection('projects').findOne({ _id: ObjectId(idProject) })
-                //console.log(project)
-                let filtro = project.lider.filter(p => p === email)
+                console.log(project)
+                //filtro = project.lider.filter(p => p === email)
                 //console.log(filtro)
                 teacher = await db.collection('Users').findOne({ email: email })
                 //console.log(project, teacher)
@@ -300,22 +308,27 @@ module.exports = {
                     add = false
                 }
                 else {
-                    if (teacher.rol == "Lider") {
-                        if (filtro[0] === email) {
-                            error = [{ path: "validacion", message: "El email ya se encuentra registrado" }]
-                            add = false
-                        }
-                        else {
-                            await db.collection('Users').updateOne(
-                                { email },
-                                { $addToSet: { cursos: idProject } }
-                            )
-                            await db.collection('projects').updateOne(
-                                { _id: ObjectId(idProject) },
-                                { $addToSet: { lider: email } }
-                            )
-                            add = true
-                        }
+                    if (teacher.rol === "Lider") {
+                        // if (filtro[0] === email) {
+                        //     error = [{ path: "validacion", message: "El email ya se encuentra registrado" }]
+                        //     add = false
+                        // }
+                        // else {
+                            if(teacher.Estado==="Activar"){
+                                await db.collection('Users').updateOne(
+                                    { email },
+                                    { $addToSet: { cursos: idProject } }
+                                )
+                                await db.collection('projects').updateOne(
+                                    { _id: ObjectId(idProject) },
+                                    { $addToSet: { lider: email } }
+                                )
+                                add = true
+                            }
+                            else{
+                                error=[{path:"Validacion",message:"No puede agregar un Profesor desactivado"}]
+                            }
+                        //}
                     }
                     else {
                         error = [{ path: "Validacion", message: "El email presentado no corresponde a un profesor" }]
@@ -415,6 +428,7 @@ module.exports = {
         let validacion
         let email
         let error
+        let Estado
         //console.log(token)
         if (!token || token == "") {
             console.log("No hay Token")
@@ -428,7 +442,8 @@ module.exports = {
                 id = verificar.id
                 nombres = verificar.nombre
                 rol = verificar.rol
-                email=verificar.email
+                email = verificar.email
+                Estado = verificar.Estado
                 validacion = true
             } catch (error) {
                 //error=[{path:"validacion", message:"El token no es valido"}]
@@ -441,6 +456,7 @@ module.exports = {
             email,
             nombres,
             rol,
+            Estado,
             validacion,
             error
         }

@@ -48,6 +48,7 @@ type resToken{
     email:String
     nombres:String
     rol:String
+    Estado:String
     validacion:Boolean
     error:[Error]
 }
@@ -71,6 +72,7 @@ type user{
     Carrera:String
     cursos:[Project]
     Horas:Int
+    Estado:String
 }
 type Student{
     nombres:String
@@ -91,6 +93,7 @@ input UpdateUser{
     Carrera:String
     email:String
     rol:String
+    Estado:String
 }
 input UpdateProject{
     tittle:String
@@ -135,7 +138,7 @@ type Mutation{
     "Validar"
     validate(token:String!):resToken
     "Crear Proyecto"
-    createProject(input: inputProject!):resProject
+    createProject(email:String!,input: inputProject!):resProject
     "Actualizar Proyecto"
     updateProject(id:ID!,input: UpdateProject!):resUpdateProject
     "Eliminar Profesor"
@@ -143,7 +146,7 @@ type Mutation{
     "Eliminar Estudiante"
     delStudent(idProject:ID!,email:String!):String
     "Update User"
-    updateUser(id:ID!,input:UpdateUser!):resUpdateUser
+    updateUser(email:String!,input:UpdateUser!):resUpdateUser
     "Agregar Estudiante"
     addStudent(email:String!, idProject:ID!):resAddStudent
     "Agregar Teacher"

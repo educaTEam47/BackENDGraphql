@@ -118,7 +118,7 @@ module.exports = {
             error
         }
     },
-    createProject: async (root, {email, input }) => {
+    createProject: async (root, { email, input }) => {
         let db
         let addproject
         let search
@@ -153,7 +153,7 @@ module.exports = {
                     )
                     let idadd = Project._id.valueOf()
                     console.log(idadd)
-                    course = await db.collection('projects').findOne({_id:Project._id})
+                    course = await db.collection('projects').findOne({ _id: Project._id })
                     await db.collection('Users').updateOne(
                         { email },
                         { $addToSet: { cursos: idadd } }
@@ -249,7 +249,7 @@ module.exports = {
                         add = false
                     }
                     else {
-                        if(student.Estado==="Activar"){
+                        if (student.Estado === "Activar") {
                             await db.collection('Users').updateOne(
                                 { email },
                                 { $addToSet: { cursos: idProject } }
@@ -260,8 +260,8 @@ module.exports = {
                             )
                             add = true
                         }
-                        else{
-                            error=[{path:"Validate",message:"No puede agregar un estudiante que no ha sido activado"}]
+                        else {
+                            error = [{ path: "Validate", message: "No puede agregar un estudiante que no ha sido activado" }]
                         }
                     }
 
@@ -287,7 +287,7 @@ module.exports = {
         let error
         let filtro
         try {
-            console.log(idProject,email)
+            console.log(idProject, email)
             db = await connectDb()
             if (email === "" || email === null) {
                 error = [{ path: "Validacion", message: "Debe introducir un email" }]
@@ -314,20 +314,20 @@ module.exports = {
                         //     add = false
                         // }
                         // else {
-                            if(teacher.Estado==="Activar"){
-                                await db.collection('Users').updateOne(
-                                    { email },
-                                    { $addToSet: { cursos: idProject } }
-                                )
-                                await db.collection('projects').updateOne(
-                                    { _id: ObjectId(idProject) },
-                                    { $addToSet: { lider: email } }
-                                )
-                                add = true
-                            }
-                            else{
-                                error=[{path:"Validacion",message:"No puede agregar un Profesor desactivado"}]
-                            }
+                        if (teacher.Estado === "Activar") {
+                            await db.collection('Users').updateOne(
+                                { email },
+                                { $addToSet: { cursos: idProject } }
+                            )
+                            await db.collection('projects').updateOne(
+                                { _id: ObjectId(idProject) },
+                                { $addToSet: { lider: email } }
+                            )
+                            add = true
+                        }
+                        else {
+                            error = [{ path: "Validacion", message: "No puede agregar un Profesor desactivado" }]
+                        }
                         //}
                     }
                     else {
@@ -459,6 +459,37 @@ module.exports = {
             Estado,
             validacion,
             error
+        }
+    },
+    addNote: async (root, { email, idProject,input }) => {
+        let db
+        let user
+        let response
+        let error
+        let add
+        let calificacion
+        let notes
+        let noteadd
+        notes=Object.assign(input)
+        try {
+            db = await connectDb()
+            user = await db.collection('Users').findOne({ email })
+            if(user.Estado==="Activar"){
+                notesadd = await db.collection('notes').insertOne(notes)
+                add=true
+            }
+            else{
+                error=[{path:"Validacion",message:"No puede crear una nota porque no ha sido activado"}]
+            }
+        } catch (error) {
+            console.error(error);
+        }
+        return {
+            notes,
+            add,
+            response,
+            calificacion,
+            error,
         }
     }
 }

@@ -49,5 +49,31 @@ module.exports = {
             }
             return cursosdata
         }
+    },
+    notes:{
+        project:async ({project})=>{
+            let db
+            let cursosdata
+            let projects
+            try {
+                db = await connectDb()
+                cursosdata = await db.collection('projects').findOne({_id:ObjectId(project)})
+            } catch (error) {
+                console.error(error);
+            }
+            return cursosdata
+        },
+        teacher: async ({teacher})=>{
+            let db
+            let liderdata
+            let teachers
+            try {
+                db = await connectDb()
+                liderdata = await db.collection('Users').findOne({email:teacher})
+            } catch (error) {
+                console.error(error);
+            }
+            return liderdata
+        }
     }
 }

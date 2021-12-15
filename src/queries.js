@@ -99,5 +99,23 @@ module.exports = {
             console.error(error);
         }
         return project
+    },
+    getNote: async (root,{idProject})=>{
+        let db
+        let notes
+        let error
+        let search
+        try {
+            db = await connectDb()
+            notes = await db.collection('notes').find({project:idProject}).toArray()
+            search=true
+        } catch (error) {
+            console.error(error);
+        }
+        return{
+            notes,
+            search,
+            error
+        }
     }
 }

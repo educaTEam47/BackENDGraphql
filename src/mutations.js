@@ -231,7 +231,6 @@ module.exports = {
             db = await connectDb()
             //console.log(idStudent,idProject)
             project = await db.collection('projects').findOne({ _id: ObjectId(idProject) })
-            let filtro = project.people.filter(p => p === email)
             student = await db.collection('Users').findOne({ email })
             //console.log(project, student)
             if (!student) {
@@ -244,27 +243,20 @@ module.exports = {
             }
             else {
                 if (student.rol == "Estudiante") {
-                    if (filtro[0] === email) {
-                        error = [{ path: "Validacion", message: "El correo ya se encuentra registrado" }]
-                        add = false
+                    if (student.Estado === "Activar") {
+                        await db.collection('Users').updateOne(
+                            { email },
+                            { $addToSet: { cursos: idProject } }
+                        )
+                        await db.collection('projects').updateOne(
+                            { _id: ObjectId(idProject) },
+                            { $addToSet: { people: email } }
+                        )
+                        add = true
                     }
                     else {
-                        if (student.Estado === "Activar") {
-                            await db.collection('Users').updateOne(
-                                { email },
-                                { $addToSet: { cursos: idProject } }
-                            )
-                            await db.collection('projects').updateOne(
-                                { _id: ObjectId(idProject) },
-                                { $addToSet: { people: email } }
-                            )
-                            add = true
-                        }
-                        else {
-                            error = [{ path: "Validate", message: "No puede agregar un estudiante que no ha sido activado" }]
-                        }
+                        error = [{ path: "Validate", message: "No puede agregar un estudiante que no ha sido activado" }]
                     }
-
                 }
                 else {
                     error = [{ path: "Validacion", message: "El email no corresponde a un Estudiante" }]
@@ -461,7 +453,7 @@ module.exports = {
             error
         }
     },
-    addNote: async (root, { email, idProject,input }) => {
+    addNote: async (root, { email, idProject, input }) => {
         let db
         let user
         let response
@@ -470,16 +462,16 @@ module.exports = {
         let calificacion
         let notes
         let notesadd
-        notes=Object.assign(input)
+        notes = Object.assign(input)
         try {
             db = await connectDb()
             user = await db.collection('Users').findOne({ email })
-            if(user.Estado==="Activar"){
+            if (user.Estado === "Activar") {
                 notesadd = await db.collection('notes').insertOne(notes)
-                add=true
+                add = true
             }
-            else{
-                error=[{path:"Validacion",message:"No puede crear una nota porque no ha sido activado"}]
+            else {
+                error = [{ path: "Validacion", message: "No puede crear una nota porque no ha sido activado" }]
             }
         } catch (error) {
             console.error(error);
@@ -492,32 +484,88 @@ module.exports = {
             error,
         }
     },
-    addResponse: async (root,{email,idnote,input})=>{
+    addResponse: async (root, { email, idnote, input }) => {
         let db
         let notes
         let add
         let addresponse
         let response
-        addresponse=Object.assign(input)
+        addresponse = Object.assign(input)
         try {
             db = await connectDb()
             addresponse.student = email
             addresponse.fecha = new Date()
-            notes = await db.collection('notes').findOne({_id:ObjectId(idnote)})
+            notes = await db.collection('notes').findOne({ _id: ObjectId(idnote) })
             //console.log(notes)
             notes = await db.collection('notes').updateOne(
-                {_id:ObjectId(idnote)},
-                {$addToSet:{response:addresponse}}
-                )
+                { _id: ObjectId(idnote) },
+                { $addToSet: { response: addresponse } }
+            )
             add = true
 
         } catch (error) {
             console.error(error);
         }
-        return{
+        return {
             add,
             response,
             notes
+        }
+    },
+    delNote: async (root, { idNote }) => {
+        let db
+        let note
+        try {
+            db = await connectDb()
+            await db.collection('notes').findOneAndDelete({ _id: ObjectId(idNote) })
+        } catch (error) {
+            console.error(error);
+        }
+        return "Se ha eliminado con exito"
+    },
+    delCourse: async (root, { idProject }) => {
+        let db
+        let course
+        try {
+            db = await connectDb()
+            await db.collection('notes').deleteMany(
+                { project: idProject }
+            )
+            await db.collection('projects').findOneAndDelete({ _id: ObjectId(idProject) })
+
+        } catch (error) {
+            console.error(error);
+        }
+    },
+    updateNote: async (root,{idNote,input})=>{
+        let db
+        let notes
+        let update
+        let error
+        try {
+            db = await connectDb()
+            if(input.note===""){
+                error=[{path:"Validacion",message:"El titulo de la nota no puede ir vacia"}]
+                update=false
+            }
+            else if(input.description===""){
+                error=[{path:"Validacion",message:"La descripcion de la nota no puede ir vacia"}]
+                update=false
+            }
+            else{
+                notes = await db.collection('notes').updateOne(
+                    {_id:ObjectId(idNote)},
+                    {$set:input}
+                )
+                update=true
+            }
+        } catch (error) {
+            console.error(error);
+        }
+        return {
+            notes,
+            update,
+            error
         }
     }
 }

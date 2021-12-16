@@ -74,6 +74,11 @@ type resnote{
     search:Boolean
     error:[Error]
 }
+type resUpdateNote{
+    notes:notes
+    update:Boolean
+    error:[Error]
+}
 "----------Type--------"
 type notes{
     _id:ID
@@ -213,4 +218,10 @@ type Mutation{
     addNote(email:String!, idProject:ID!, input:inputNotes!):resAddNote
     "Agregar respuesta"
     addResponse(email:String!,idnote:ID!,input:inputResponse):resAddResponse
+    "Eliminar Nota"
+    delNote(idNote:ID!):String
+    "Eliminar Curso"
+    delCourse(idProject:ID!):String
+    "Actualizar Nota"
+    updateNote(idNote:ID!,input:inputNotes! ):resUpdateNote
 }

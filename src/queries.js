@@ -117,5 +117,23 @@ module.exports = {
             search,
             error
         }
+    },
+    getNot: async (root,{idNote})=>{
+        let db
+        let notes
+        let search
+        let error
+        try {
+            db = await connectDb()
+            notes = await db.collection('notes').findOne({_id:ObjectId(idNote)})
+            search = true
+        } catch (error) {
+            console.error(error);
+        }
+        return {
+            notes,
+            search,
+            error
+        }
     }
 }

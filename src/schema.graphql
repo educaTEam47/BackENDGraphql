@@ -69,6 +69,11 @@ type resnotes{
     search:Boolean
     error:[Error]
 }
+type resnote{
+    notes:notes
+    search:Boolean
+    error:[Error]
+}
 "----------Type--------"
 type notes{
     _id:ID
@@ -177,8 +182,10 @@ type Query{
     getProjects:[Project]
     "Obtener solo un proyecto"
     getProject(id:ID!):Project
-    "Obtener Nota"
+    "Obtener Notas"
     getNote(idProject:ID!):resnotes
+    "Obtener Nota"
+    getNot(idNote:ID!):resnote
 }
 
 type Mutation{
@@ -205,5 +212,5 @@ type Mutation{
     "Agregar Nota"
     addNote(email:String!, idProject:ID!, input:inputNotes!):resAddNote
     "Agregar respuesta"
-    addResponse(email:String!,idProject:ID!,idnote:ID!,input:inputResponse):resAddResponse
+    addResponse(email:String!,idnote:ID!,input:inputResponse):resAddResponse
 }

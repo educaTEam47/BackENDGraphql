@@ -491,5 +491,33 @@ module.exports = {
             calificacion,
             error,
         }
+    },
+    addResponse: async (root,{email,idnote,input})=>{
+        let db
+        let notes
+        let add
+        let addresponse
+        let response
+        addresponse=Object.assign(input)
+        try {
+            db = await connectDb()
+            addresponse.student = email
+            addresponse.fecha = new Date()
+            notes = await db.collection('notes').findOne({_id:ObjectId(idnote)})
+            //console.log(notes)
+            notes = await db.collection('notes').updateOne(
+                {_id:ObjectId(idnote)},
+                {$addToSet:{response:addresponse}}
+                )
+            add = true
+
+        } catch (error) {
+            console.error(error);
+        }
+        return{
+            add,
+            response,
+            notes
+        }
     }
 }

@@ -559,6 +559,7 @@ module.exports = {
                     {_id:ObjectId(idNote)},
                     {$set:input}
                 )
+                notes = await db.collection('notes').findOne({_id:ObjectId(idNote)})
                 update=true
             }
         } catch (error) {

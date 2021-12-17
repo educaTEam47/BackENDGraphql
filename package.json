@@ -7,7 +7,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "npm start": "node index.js",
+    "start": "node index",
     "test": "jest --verbose --coverage --runInBand"
   },
   "keywords": [],

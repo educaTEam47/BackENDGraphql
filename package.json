@@ -7,7 +7,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "npm start":"nodemon",
+    "npm start": "nodemon",
     "test": "jest --verbose --coverage --runInBand"
   },
   "keywords": [],

@@ -16,7 +16,7 @@ var corsOptions = {
 }
 //Creacion de App y Ruta
 const app = express()
-const port = process.env.port || 8000;
+const PORT = process.env.PORT || 8000;
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT,DELETE");
@@ -47,6 +47,6 @@ app.use('/', graphqlHTTP({
 }))
 app.use(cors(corsOptions))
 //PUERTO DEL SERVIDOR
-app.listen(port,()=>{
-    console.log("El servidor de encuentra en el puerto", port)
+app.listen(PORT,()=>{
+    console.log("El servidor de encuentra en el puerto", PORT)
 })

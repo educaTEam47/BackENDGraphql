@@ -79,7 +79,15 @@ type resUpdateNote{
     update:Boolean
     error:[Error]
 }
+type resNotificacion{
+    send:Boolean
+    error:[Error]
+}
 "----------Type--------"
+type estadoNote{
+    note:ID
+    estado:Boolean
+}
 type notes{
     _id:ID
     project:Project
@@ -117,6 +125,7 @@ type user{
     cursos:[Project]
     Horas:Int
     Estado:String
+    EstadoNote:[estadoNote]
 }
 type Student{
     nombres:String
@@ -176,6 +185,10 @@ input inputResponse{
     response:String
     fecha:String
 }
+input inputNotificacion{
+    estado:Boolean
+    note:ID
+}
 "------###################-----------------"
 type Query{
     "Van los getters"
@@ -224,4 +237,6 @@ type Mutation{
     delCourse(idProject:ID!):String
     "Actualizar Nota"
     updateNote(idNote:ID!,input:inputNotes! ):resUpdateNote
+    "Enviar Notificacion"
+    addNotificacion(email:String!,input:inputNotificacion!):resNotificacion
 }

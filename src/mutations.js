@@ -206,7 +206,7 @@ module.exports = {
                 )
             }
             else {
-                error = [{ path: "Validacion", message: "El numero de identificaion debe ser un numero" }]
+                error = [{ path: "Validacion", message: "El numero de identificacion debe ser un numero" }]
             }
             user = await db.collection('Users').findOne({ email })
             //console.log(user)
@@ -461,14 +461,16 @@ module.exports = {
         let add
         let calificacion
         let notes
+        let project
         let notesadd
         notes = Object.assign(input)
         try {
             db = await connectDb()
             user = await db.collection('Users').findOne({ email })
+            project = await db.collection('projects').findOne({_id:ObjectId(idProject)})
+            console.log(project)
             if (user.Estado === "Activar") {
                 notesadd = await db.collection('notes').insertOne(notes)
-                add = true
             }
             else {
                 error = [{ path: "Validacion", message: "No puede crear una nota porque no ha sido activado" }]
@@ -566,6 +568,25 @@ module.exports = {
             notes,
             update,
             error
+        }
+    },
+    addNotificacion: async(root,{email,input})=>{
+        let db
+        let student
+        let send
+        let error
+        try {
+            db = await connectDb()
+            student = await db.collection('Users').updateOne(
+                {email},
+                {$addToSet:{EstadoNote:input}})
+            send=true
+        } catch (error) {
+            console.error(error);
+        }
+        return{
+            send,
+            error,
         }
     }
 }

@@ -239,4 +239,6 @@ type Mutation{
     updateNote(idNote:ID!,input:inputNotes! ):resUpdateNote
     "Enviar Notificacion"
     addNotificacion(email:String!,input:inputNotificacion!):resNotificacion
+    "Actualizar Notificacion"
+    updateNoti(email:String!,input:inputNotificacion!):String
 }

@@ -588,5 +588,22 @@ module.exports = {
             send,
             error,
         }
+    },
+    updateNoti: async (root,{email,input})=>{
+        let db
+        let student
+        try {
+            db = await connectDb()
+            console.log(input)
+            student = await db.collection('Users').updateOne(
+                {email},
+                {$set:{EstadoNote:input}}
+            )
+            student = await db.collection('Users').findOne({email})
+            //console.log(student)
+        } catch (error) {
+            console.error(error);
+        }
+        return "Se ha actualizado"
     }
 }

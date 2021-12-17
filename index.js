@@ -11,7 +11,7 @@ const resolvers  = require('./src/resolver');
 
 var corsOptions = {
     credentials:true,
-    origin: 'http://localhost:3000', // Reemplazar con dominio
+    origin: '*', // Reemplazar con dominio
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 //Creacion de App y Ruta

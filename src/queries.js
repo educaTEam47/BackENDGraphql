@@ -9,7 +9,7 @@ module.exports = {
         try {
             db = await connectDb()
             Users = await db.collection('Users').find().toArray()
-            //console.log(Users)
+            console.log(Users)
         } catch (error) {
             console.error(error);
         }
@@ -27,7 +27,7 @@ module.exports = {
             }
             else {
                 user = await db.collection('Users').findOne({ email: email })
-                //console.log(id)
+                console.log(user)
                 if (user == null) {
                     error = [{ path: "Validacion", message: "El usuario no existe" }]
                     search = false
@@ -83,7 +83,7 @@ module.exports = {
         try {
             db = await connectDb()
             project = await db.collection('projects').find().toArray()
-            //console.log(project)
+            console.log(project)
         } catch (error) {
             console.error(error);
         }
@@ -95,6 +95,7 @@ module.exports = {
         try {
             db = await connectDb()
             project = await db.collection('projects').findOne({ _id: ObjectId(id) })
+            console.log(project)
         } catch (error) {
             console.error(error);
         }
@@ -108,6 +109,7 @@ module.exports = {
         try {
             db = await connectDb()
             notes = await db.collection('notes').find({project:idProject}).toArray()
+            console.log(notes)
             search=true
         } catch (error) {
             console.error(error);
@@ -126,6 +128,7 @@ module.exports = {
         try {
             db = await connectDb()
             notes = await db.collection('notes').findOne({_id:ObjectId(idNote)})
+            console.log(notes)
             search = true
         } catch (error) {
             console.error(error);

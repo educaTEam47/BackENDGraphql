@@ -44,10 +44,13 @@ module.exports = {
                 const passwordcrypt = await bcrypt.hash(user.password, saltos);
                 user.password = passwordcrypt
                 searchusername = await db.collection('Users').findOne({ username: user.username })
+                console.log(searchusername)
                 searchEmail = await db.collection('Users').findOne({ email: user.email })
+                console.log(searchEmail)
                 if (searchusername == null && searchEmail == null) {
                     user.Estado = "Desactivar"
                     usuario = await db.collection('Users').insertOne(user)
+                    console.log(usuario)
                     register = true
                 }
                 else {
@@ -77,11 +80,11 @@ module.exports = {
         try {
             db = await connectDb()
             searchusername = await db.collection('Users').findOne({ username: user.username })
-            //console.log(searchusername)
+            console.log(searchusername)
             if (!searchusername) {
                 error = [{ path: "username", message: "No se encuentra el username en la base de datos" }]
             }
-            //console.log(searchusername)
+            console.log(searchusername)
             searchpassword = await bcrypt.compare(user.password, searchusername.password)
             if (!searchpassword) {
                 error = [{ path: "Password", message: "La contraseña no es valida" }]
@@ -154,6 +157,7 @@ module.exports = {
                     let idadd = Project._id.valueOf()
                     console.log(idadd)
                     course = await db.collection('projects').findOne({ _id: Project._id })
+                    console.log(course)
                     await db.collection('Users').updateOne(
                         { email },
                         { $addToSet: { cursos: idadd } }
@@ -187,6 +191,7 @@ module.exports = {
             db = await connectDb()
             //console.log(id, input)
             search = await db.collection('Users').findOne({ email })
+            console.log(search)
             if (input.email) {
                 index1 = input.email.indexOf("@")
                 newemail = input.email.substring(0, index1)
@@ -231,8 +236,9 @@ module.exports = {
             db = await connectDb()
             //console.log(idStudent,idProject)
             project = await db.collection('projects').findOne({ _id: ObjectId(idProject) })
+            console.log(project)
             student = await db.collection('Users').findOne({ email })
-            //console.log(project, student)
+            console.log(student)
             if (!student) {
                 error = [{ path: "Validacion", message: "No existe el estudiante" }]
                 add = false
@@ -290,7 +296,7 @@ module.exports = {
                 //filtro = project.lider.filter(p => p === email)
                 //console.log(filtro)
                 teacher = await db.collection('Users').findOne({ email: email })
-                //console.log(project, teacher)
+                console.log(teacher)
                 if (!project) {
                     error = [{ path: "validacion", message: "El proyecto no existe" }]
                     add = false
@@ -467,6 +473,7 @@ module.exports = {
         try {
             db = await connectDb()
             user = await db.collection('Users').findOne({ email })
+            console.log(user)
             project = await db.collection('projects').findOne({_id:ObjectId(idProject)})
             console.log(project)
             if (user.Estado === "Activar") {
@@ -498,7 +505,7 @@ module.exports = {
             addresponse.student = email
             addresponse.fecha = new Date()
             notes = await db.collection('notes').findOne({ _id: ObjectId(idnote) })
-            //console.log(notes)
+            console.log(notes)
             notes = await db.collection('notes').updateOne(
                 { _id: ObjectId(idnote) },
                 { $addToSet: { response: addresponse } }
@@ -582,6 +589,7 @@ module.exports = {
                 {email},
                 {$addToSet:{EstadoNote:input}})
             send=true
+            console.log(student)
         } catch (error) {
             console.error(error);
         }

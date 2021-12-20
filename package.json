@@ -8,7 +8,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index",
-    "test": "jest --verbose --coverage --runInBand"
+    "test": "NODE_ENV=test jest",
+    "ci": "start-server-and-test test-server http://localhost:4000"
   },
   "keywords": [],
   "author": "",
@@ -30,8 +31,10 @@
     "nodemon": "^2.0.15"
   },
   "devDependencies": {
+    "add": "^2.0.6",
     "jest": "^27.4.5",
-    "standard": "^16.0.4"
+    "standard": "^16.0.4",
+    "start-server-and-test": "^1.14.0"
   },
   "jest": {
     "testEnvironment": "node"

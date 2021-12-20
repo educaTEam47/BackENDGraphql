@@ -83,7 +83,23 @@ type resNotificacion{
     send:Boolean
     error:[Error]
 }
+type resSolicitud{
+    estado:Boolean
+    error:[Error]
+}
+type resDelSolicitud{
+    message:String
+    estado:Boolean
+    error:[Error]
+}
+type resSolicitudes{
+    solicitudes:[solicitud]
+}
 "----------Type--------"
+type solicitud{
+    email:String
+    project:[Project]
+}
 type estadoNote{
     note:ID
     estado:Boolean
@@ -204,6 +220,8 @@ type Query{
     getNote(idProject:ID!):resnotes
     "Obtener Nota"
     getNot(idNote:ID!):resnote
+    "Obtener solicitudes"
+    getSolicitudes(idProject:ID!):resSolicitudes
 }
 
 type Mutation{
@@ -241,4 +259,8 @@ type Mutation{
     addNotificacion(email:String!,input:inputNotificacion!):resNotificacion
     "Actualizar Notificacion"
     updateNoti(email:String!,input:inputNotificacion!):String
+    "Solicitudes"
+    solicitudes(idProject:ID!,email:String):resSolicitud
+    "Eliminar Solictud"
+    delSolicitud(idProject:ID!,email:String):resDelSolicitud
 }

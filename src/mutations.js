@@ -474,7 +474,7 @@ module.exports = {
             db = await connectDb()
             user = await db.collection('Users').findOne({ email })
             console.log(user)
-            project = await db.collection('projects').findOne({_id:ObjectId(idProject)})
+            project = await db.collection('projects').findOne({ _id: ObjectId(idProject) })
             console.log(project)
             if (user.Estado === "Activar") {
                 notesadd = await db.collection('notes').insertOne(notes)
@@ -546,28 +546,28 @@ module.exports = {
             console.error(error);
         }
     },
-    updateNote: async (root,{idNote,input})=>{
+    updateNote: async (root, { idNote, input }) => {
         let db
         let notes
         let update
         let error
         try {
             db = await connectDb()
-            if(input.note===""){
-                error=[{path:"Validacion",message:"El titulo de la nota no puede ir vacia"}]
-                update=false
+            if (input.note === "") {
+                error = [{ path: "Validacion", message: "El titulo de la nota no puede ir vacia" }]
+                update = false
             }
-            else if(input.description===""){
-                error=[{path:"Validacion",message:"La descripcion de la nota no puede ir vacia"}]
-                update=false
+            else if (input.description === "") {
+                error = [{ path: "Validacion", message: "La descripcion de la nota no puede ir vacia" }]
+                update = false
             }
-            else{
+            else {
                 notes = await db.collection('notes').updateOne(
-                    {_id:ObjectId(idNote)},
-                    {$set:input}
+                    { _id: ObjectId(idNote) },
+                    { $set: input }
                 )
-                notes = await db.collection('notes').findOne({_id:ObjectId(idNote)})
-                update=true
+                notes = await db.collection('notes').findOne({ _id: ObjectId(idNote) })
+                update = true
             }
         } catch (error) {
             console.error(error);
@@ -578,7 +578,7 @@ module.exports = {
             error
         }
     },
-    addNotificacion: async(root,{email,input})=>{
+    addNotificacion: async (root, { email, input }) => {
         let db
         let student
         let send
@@ -586,33 +586,124 @@ module.exports = {
         try {
             db = await connectDb()
             student = await db.collection('Users').updateOne(
-                {email},
-                {$addToSet:{EstadoNote:input}})
-            send=true
+                { email },
+                { $addToSet: { EstadoNote: input } })
+            send = true
             console.log(student)
         } catch (error) {
             console.error(error);
         }
-        return{
+        return {
             send,
             error,
         }
     },
-    updateNoti: async (root,{email,input})=>{
+    updateNoti: async (root, { email, input }) => {
         let db
         let student
         try {
             db = await connectDb()
             console.log(input)
             student = await db.collection('Users').updateOne(
-                {email},
-                {$set:{EstadoNote:input}}
+                { email },
+                { $set: { EstadoNote: input } }
             )
-            student = await db.collection('Users').findOne({email})
+            student = await db.collection('Users').findOne({ email })
             //console.log(student)
         } catch (error) {
             console.error(error);
         }
         return "Se ha actualizado"
+    },
+    solicitudes: async (root, { idProject, email }) => {
+        let db
+        let solicitud
+        let searchSolicitud
+        let searchUser
+        let user
+        let estado
+        let error
+        try {
+            db = await connectDb()
+            user = await db.collection('Users').findOne({email})
+            searchUser = await db.collection('projects').findOne(
+                {_id:ObjectId(idProject),people:email}
+            )
+            console.log(searchUser)
+            //console.log(user,idProject)
+            searchSolicitud = await db.collection('solicitudes').findOne(
+                {email,solicitud:idProject}
+                )
+            //console.log(searchSolicitud)
+            if(searchUser===null){
+                if(searchSolicitud===null){
+                    if(user.Estado==="Activar"){
+                        solicitud = await db.collection('solicitudes').insertOne(
+                            {email,solicitud:idProject}
+                            )
+                        estado=true
+                    }
+                    else{
+                        error=[{path:"Validacion",message:"No puede aceptar la solicitud ya que el usuario no esta activo"}]
+                        estado=false
+                    }
+                }
+                else{
+                    error=[{path:"Validacion",message:"La solicitud ya se encuentra registrada"}]
+                    estado=false
+                }
+            }
+            else{
+                error=[{path:"Validacion",message:"El usuario ya se encuentra registrado"}]
+                estado=false
+            }
+        } catch (error) {
+            console.error(error);
+        }
+        return{
+            estado,
+            error,
+        }
+    },
+    delSolicitud: async (root, { idProject, email }) => {
+        let db
+        let solicitud
+        let solicitudDel
+        let estado
+        let message
+        let error
+        try {
+            db = await connectDb()
+            solicitud = await db.collection('solicitudes').findOne(
+                {email,solicitud:idProject}
+            )
+            if(solicitud!==null){
+                await db.collection('solicitudes').findOneAndDelete(
+                    {email,solicitud:idProject}
+                )
+                solicitudDel = await db.collection('solicitudes').findOne(
+                    {email,solicitud:idProject}
+                )
+                if(solicitudDel!==null){
+                    error=[{path:"Validacion",message:"No se ha eliminado correctamente"}]
+                    estado=false
+                }
+                else{
+                    message="La solicitud se ha eliminado"
+                    estado=true
+                }
+            }
+            else{
+                error=[{path:"Validacion",message:"La solcitud no se encuentra registrada"}]
+                estado=false
+            }
+        } catch (error) {
+            console.error(error);
+        }
+        return{
+            message,
+            error,
+            estado
+        }
     }
 }

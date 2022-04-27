@@ -368,7 +368,7 @@ module.exports = {
             else {
                 Project = await db.collection('projects').updateOne(
                     { _id: ObjectId(id) },
-                    { $set: input }
+                    { $set: input } 
                 )
                 Project = await db.collection('projects').findOne({ _id: ObjectId(id) })
                 update = true

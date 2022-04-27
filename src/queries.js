@@ -83,7 +83,6 @@ module.exports = {
         try {
             db = await connectDb()
             project = await db.collection('projects').find().toArray()
-            console.log(project)
         } catch (error) {
             console.error(error);
         }
@@ -95,7 +94,6 @@ module.exports = {
         try {
             db = await connectDb()
             project = await db.collection('projects').findOne({ _id: ObjectId(id) })
-            console.log(project)
         } catch (error) {
             console.error(error);
         }

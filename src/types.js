@@ -14,6 +14,7 @@ module.exports = {
                 names = people ? people.map((nombres=>nombres)) :[]
                 peopledata= names
                     ? await db.collection('Users').find({email:{$in:names}}).toArray() :[]
+                console.log(peopledata)
             } catch (error) {
                 console.error(error);
             }
